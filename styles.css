@@ -1,0 +1,109 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.hidden {
+  display: none;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #343a40;
+  color: white;
+  padding: 10px 20px;
+}
+
+.top-right-buttons button {
+  margin-left: 10px;
+}
+
+#main-page, #board-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#post-form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+#post-form textarea {
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 10px;
+  resize: vertical;
+}
+
+#post-form input[type="file"] {
+  margin-bottom: 10px;
+}
+
+#post-form button {
+  background-color: white;
+  border: 1px solid #aaa;
+  padding: 10px;
+  cursor: pointer;
+}
+
+#posts .post {
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 5px;
+  position: relative;
+}
+
+#posts img, #posts video {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.popup {
+  position: fixed;
+  top: 20%;
+  left: 35%;
+  width: 300px;
+  background: white;
+  border: 2px solid #888;
+  border-radius: 10px;
+  z-index: 1000;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.popup input {
+  margin: 5px 0;
+  padding: 8px;
+}
+
+.popup button {
+  margin: 5px 0;
+  padding: 8px;
+  background-color: white;
+  border: 1px solid #aaa;
+  cursor: pointer;
+}
+
+.close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
