@@ -2,7 +2,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyBJcdO1Iz42-sj19f3X43JRecK2dZHM8XM",
   authDomain: "my-blogg-25c16.firebaseapp.com",
-  databaseURL: "https://my-blogg-25c16-default-rtdb.firebaseio.com",
+  databaseURL: "https://my-blogg-25c16-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "my-blogg-25c16",
   storageBucket: "my-blogg-25c16.appspot.com",
   messagingSenderId: "430693541995",
@@ -16,8 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const posts = get("posts");
 
   let userDB = JSON.parse(localStorage.getItem("userDB")) || { 관리자: "0000" };
-  let userData = JSON.parse(localStorage.getItem("userData")) || { guest: { postCount: 0, recentPost: "" } };
-  let currentUser = localStorage.getItem("currentUser") || "guest";
+  let userData = JSON.parse(localStorage.getItem("userData")) || {};
+  let currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    currentUser = "guest_" + Math.random().toString(36).substring(2, 8);
+    localStorage.setItem("currentUser", currentUser);
+  }
   let isAdmin = currentUser === "관리자";
 
   const updateStorage = () => {
@@ -27,15 +31,26 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
   };
 
-  function loadPosts() {
+  const clearForm = () => {
+    get("post-content").value = "";
+    get("post-media").value = "";
+  };
+
+  const updateUserData = (content) => {
+    userData[currentUser] ||= { postCount: 0, recentPost: "" };
+    userData[currentUser].postCount++;
+    userData[currentUser].recentPost = content;
+    updateStorage();
+  };
+
+  const loadPosts = () => {
     db.ref("posts").on("value", snapshot => {
       posts.innerHTML = "";
       const data = snapshot.val();
       if (!data) return;
       Object.entries(data).reverse().forEach(([key, post]) => {
-        const postDiv = document.createElement("div");
-        postDiv.className = "post";
-
+        const div = document.createElement("div");
+        div.className = "post";
         let html = `<p><strong>${post.author}</strong> (${post.date})</p><p>${post.content}</p>`;
         if (post.file) {
           if (post.file.type.startsWith("image/")) {
@@ -44,198 +59,150 @@ document.addEventListener("DOMContentLoaded", () => {
             html += `<video src="${post.file.url}" controls></video>`;
           }
         }
-
-        postDiv.innerHTML = html;
+        div.innerHTML = html;
 
         if (isAdmin) {
-          const delBtn = document.createElement("button");
-          delBtn.textContent = "삭제";
-          delBtn.style.position = "absolute";
-          delBtn.style.top = "10px";
-          delBtn.style.right = "10px";
-          delBtn.addEventListener("click", () => {
+          const del = document.createElement("button");
+          del.textContent = "삭제";
+          del.className = "delete-post";
+          del.onclick = () => {
             if (confirm("정말 삭제하시겠습니까?")) {
               db.ref("posts/" + key).remove();
             }
-          });
-          postDiv.appendChild(delBtn);
+          };
+          div.appendChild(del);
         }
 
-        posts.appendChild(postDiv);
+        posts.appendChild(div);
       });
     });
-  }
+  };
 
-  // 페이지 전환
+  // 초기 화면
+  get("main-page").classList.remove("hidden");
+  get("board-page").classList.add("hidden");
+  get("show-login").textContent = currentUser.startsWith("guest_") ? "🔐 로그인" : `🔓 ${currentUser}`;
+  if (!currentUser.startsWith("guest_")) loadPosts();
+
+  // 페이지 이동
   get("go-to-board").onclick = () => {
     get("main-page").classList.add("hidden");
     get("board-page").classList.remove("hidden");
-    get("show-login").textContent = currentUser === "guest" ? "🔐 로그인" : `🔓 ${currentUser}`;
     loadPosts();
   };
 
   // 팝업 닫기
   document.querySelectorAll(".close").forEach(btn => {
     btn.onclick = () => {
-      const popupId = btn.getAttribute("data-target");
-      document.getElementById(popupId).classList.add("hidden");
+      document.getElementById(btn.dataset.target).classList.add("hidden");
     };
   });
 
-  // 로그인 팝업 열기
-  get("show-login").onclick = () => {
-    if (currentUser === "guest") {
-      get("login-popup").classList.remove("hidden");
-    } else {
-      alert(`${currentUser}님은 이미 로그인 상태입니다.`);
-    }
-  };
+  // 로그인 팝업
+  get("show-login").onclick = () => get("login-popup").classList.remove("hidden");
 
-  // 비밀번호 보기/숨기기
-  const pw = get("login-password");
-  const toggle = document.getElementById("toggle-password");
-  if (toggle) {
-    toggle.addEventListener("click", () => {
-      pw.type = pw.type === "password" ? "text" : "password";
-    });
-  }
+  // 비밀번호 눈모양
+  const pwInput = get("login-password");
+  const toggle = document.createElement("span");
+  toggle.textContent = "👁️";
+  toggle.style.cursor = "pointer";
+  toggle.onclick = () => {
+    pwInput.type = pwInput.type === "password" ? "text" : "password";
+  };
+  pwInput.parentNode.insertBefore(toggle, pwInput.nextSibling);
 
   // 로그인
   get("login-btn").onclick = () => {
-    const username = get("login-username").value.trim();
-    const password = get("login-password").value.trim();
+    const u = get("login-username").value.trim();
+    const p = get("login-password").value.trim();
+    if (!u || !p) return alert("입력하세요.");
+    if (!userDB[u]) return alert("회원가입 먼저 해주세요.");
+    if (userDB[u] !== p) return alert("비밀번호 오류.");
 
-    if (!username || !password) {
-      alert("아이디와 비밀번호를 입력하세요.");
-      return;
-    }
-
-    if (userDB[username] && userDB[username] === password) {
-      currentUser = username;
-      isAdmin = currentUser === "관리자";
-      userData[currentUser] ||= { postCount: 0, recentPost: "" };
-      updateStorage();
-      alert(`${currentUser}님 환영합니다!`);
-      get("login-popup").classList.add("hidden");
-      get("show-login").textContent = `🔓 ${currentUser}`;
-      loadPosts();
-    } else {
-      alert("아이디 또는 비밀번호가 올바르지 않습니다.");
-    }
+    currentUser = u;
+    isAdmin = u === "관리자";
+    userData[u] ||= { postCount: 0, recentPost: "" };
+    updateStorage();
+    get("login-popup").classList.add("hidden");
+    get("show-login").textContent = `🔓 ${currentUser}`;
+    alert(`${currentUser}님 환영합니다!`);
+    loadPosts();
   };
 
   // 회원가입
   get("register-btn").onclick = () => {
-    const username = get("login-username").value.trim();
-    const password = get("login-password").value.trim();
-
-    if (!username || !password) {
-      alert("아이디와 비밀번호를 모두 입력하세요.");
-      return;
-    }
-    if (userDB[username]) {
-      alert("이미 존재하는 아이디입니다.");
-      return;
-    }
-    userDB[username] = password;
-    userData[username] = { postCount: 0, recentPost: "" };
+    const u = get("login-username").value.trim();
+    const p = get("login-password").value.trim();
+    if (!u || !p) return alert("입력하세요.");
+    if (userDB[u]) return alert("이미 존재하는 아이디입니다.");
+    userDB[u] = p;
+    userData[u] = { postCount: 0, recentPost: "" };
+    alert("회원가입 완료!");
     updateStorage();
-    alert("회원가입 완료! 로그인 해주세요.");
   };
 
   // 게시글 작성
   get("submit-post").onclick = () => {
-    if (currentUser === "guest") {
-      alert("로그인 후 글을 작성하세요.");
-      return;
-    }
     const content = get("post-content").value.trim();
-    const fileInput = get("post-media");
+    const file = get("post-media").files[0];
+    if (!content && !file) return alert("내용 또는 파일 필요");
+
     const now = new Date().toLocaleString();
-
-    if (!content && fileInput.files.length === 0) {
-      alert("내용이나 파일을 입력해주세요.");
-      return;
-    }
-
-    const newPost = {
+    const post = {
       author: currentUser,
       content,
       date: now,
       file: null
     };
 
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
+    if (file) {
       const reader = new FileReader();
       reader.onload = e => {
-        newPost.file = {
+        post.file = {
           url: e.target.result,
           type: file.type
         };
-        db.ref("posts").push(newPost);
+        db.ref("posts").push(post);
         updateUserData(content);
-        clearPostForm();
+        clearForm();
       };
       reader.readAsDataURL(file);
     } else {
-      db.ref("posts").push(newPost);
+      db.ref("posts").push(post);
       updateUserData(content);
-      clearPostForm();
+      clearForm();
     }
   };
-
-  function updateUserData(content) {
-    userData[currentUser] ||= { postCount: 0, recentPost: "" };
-    userData[currentUser].postCount++;
-    userData[currentUser].recentPost = content;
-    updateStorage();
-  }
-
-  function clearPostForm() {
-    get("post-content").value = "";
-    get("post-media").value = "";
-  }
 
   // 내 정보 보기
   get("show-profile").onclick = () => {
-    if (currentUser === "guest") {
-      alert("로그인 후 이용 가능합니다.");
-      return;
-    }
+    const data = userData[currentUser] || { postCount: 0, recentPost: "" };
     get("profile-name").textContent = `이름: ${currentUser}`;
-    get("profile-post-count").textContent = `게시글 수: ${userData[currentUser]?.postCount || 0}`;
-    get("recent-post").textContent = `최근 글: ${userData[currentUser]?.recentPost || "없음"}`;
-    get("profile-popup").classList.remove("hidden");
-
+    get("profile-post-count").textContent = `총 게시글 수: ${data.postCount}`;
+    get("recent-post").textContent = `최근 게시글 내용: ${data.recentPost || "없음"}`;
     get("view-users-btn").classList.toggle("hidden", !isAdmin);
+    get("profile-popup").classList.remove("hidden");
   };
 
-  // 가입자 목록 보기
+  // 가입자 보기
   get("view-users-btn").onclick = () => {
-    const list = get("user-list");
-    list.innerHTML = "";
-    Object.keys(userDB).forEach(user => {
+    const ul = get("user-list");
+    ul.innerHTML = "";
+    Object.keys(userDB).forEach(u => {
       const li = document.createElement("li");
-      li.textContent = user;
-      list.appendChild(li);
+      li.textContent = u;
+      ul.appendChild(li);
     });
     get("user-list-popup").classList.remove("hidden");
   };
 
   // 로그아웃
   get("logout-btn").onclick = () => {
-    currentUser = "guest";
+    currentUser = "guest_" + Math.random().toString(36).substring(2, 8);
     isAdmin = false;
-    updateStorage();
     get("profile-popup").classList.add("hidden");
     get("show-login").textContent = "🔐 로그인";
-    alert("로그아웃 되었습니다.");
+    updateStorage();
+    loadPosts();
   };
-
-  // 초기 화면 설정
-  get("main-page").classList.remove("hidden");
-  get("board-page").classList.add("hidden");
-  get("show-login").textContent = currentUser === "guest" ? "🔐 로그인" : `🔓 ${currentUser}`;
-  if (currentUser !== "guest") loadPosts();
 });
