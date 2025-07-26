@@ -23,22 +23,17 @@ button:hover {
   background: #eee;
 }
 
-textarea {
+textarea, input[type="text"], input[type="password"] {
   width: 90%;
-  height: 100px;
   margin: 8px auto;
   display: block;
   padding: 8px;
   font-size: 16px;
 }
 
-input[type="file"],
-input[type="text"],
-input[type="password"] {
+input[type="file"] {
   display: block;
   margin: 6px auto;
-  padding: 6px;
-  width: 90%;
 }
 
 #post-form {
@@ -59,14 +54,15 @@ input[type="password"] {
   border-radius: 6px;
   width: 95%;
   max-width: 600px;
-  position: relative;
   box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  cursor: pointer;
 }
 
-#posts img, #posts video {
-  max-width: 100%;
-  margin-top: 8px;
-  border-radius: 4px;
+#posts .post .meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: gray;
 }
 
 .popup {
@@ -115,4 +111,22 @@ input[type="password"] {
   top: 6px;
   right: 20px;
   cursor: pointer;
+}
+
+.floating-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ff5b5b;
+  color: white;
+  border: none;
+  font-size: 24px;
+  padding: 12px;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  z-index: 5;
+}
+
+#detail-page {
+  padding: 20px;
 }

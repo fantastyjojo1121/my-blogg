@@ -3,17 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Firebase Blog</title>
+  <title>Firebase 블로그</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- 메인 페이지 -->
   <div id="main-page">
-    <h1>Welcome to My Blog!</h1>
+    <h1>내 멋진 블로그에 오신 것을 환영합니다!</h1>
     <button id="go-to-board">📋 게시판으로 이동</button>
   </div>
 
-  <!-- 게시판 -->
   <div id="board-page" class="hidden">
     <header>
       <h1>블로그 게시판</h1>
@@ -23,20 +21,36 @@
       </div>
     </header>
 
-    <section id="post-form">
+    <section id="posts"></section>
+
+    <button id="write-button" class="floating-btn">✏️</button>
+
+    <div id="post-form" class="hidden">
+      <input type="text" id="post-title" placeholder="제목을 입력하세요" />
       <textarea id="post-content" placeholder="내용을 입력하세요..."></textarea>
       <input type="file" id="post-media" accept="image/*,video/*" />
       <button id="submit-post">게시하기</button>
-    </section>
-
-    <section id="posts"></section>
+    </div>
   </div>
 
-  <!-- 로그인 팝업 -->
+  <div id="detail-popup" class="popup hidden">
+    <div class="popup-content">
+      <span class="close" data-target="detail-popup">&times;</span>
+      <h2 id="detail-title"></h2>
+      <p id="detail-author"></p>
+      <p id="detail-content"></p>
+      <div id="detail-media"></div>
+      <h3>댓글</h3>
+      <ul id="comments-list"></ul>
+      <input type="text" id="comment-input" placeholder="댓글을 입력하세요" />
+      <button id="add-comment">댓글 달기</button>
+    </div>
+  </div>
+
   <div id="login-popup" class="popup hidden">
     <div class="popup-content">
       <span class="close" data-target="login-popup">&times;</span>
-      <h2>로그인 또는 회원가입</h2>
+      <h2>로그인</h2>
       <input type="text" id="login-username" placeholder="아이디" />
       <div class="password-wrapper">
         <input type="password" id="login-password" placeholder="비밀번호" />
@@ -47,20 +61,18 @@
     </div>
   </div>
 
-  <!-- 프로필 팝업 -->
   <div id="profile-popup" class="popup hidden">
     <div class="popup-content">
       <span class="close" data-target="profile-popup">&times;</span>
       <h2>내 정보</h2>
       <p id="profile-name"></p>
-      <p id="profile-post-count"></p>
       <p id="recent-post"></p>
-      <button id="view-users-btn" class="hidden">가입자 목록</button>
+      <p id="profile-post-count"></p>
+      <button id="view-users-btn" class="hidden">가입자 목록 보기</button>
       <button id="logout-btn">로그아웃</button>
     </div>
   </div>
 
-  <!-- 사용자 목록 팝업 -->
   <div id="user-list-popup" class="popup hidden">
     <div class="popup-content">
       <span class="close" data-target="user-list-popup">&times;</span>
@@ -73,7 +85,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-  <!-- Script -->
+  <!-- JS -->
   <script src="script.js"></script>
 </body>
 </html>
