@@ -7,11 +7,13 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- 메인 -->
   <div id="main-page">
     <h1>내 멋진 블로그에 오신 것을 환영합니다!</h1>
     <button id="go-to-board">📋 게시판으로 이동</button>
   </div>
 
+  <!-- 게시판 -->
   <div id="board-page" class="hidden">
     <header>
       <h1>블로그 게시판</h1>
@@ -22,9 +24,9 @@
     </header>
 
     <section id="posts"></section>
-
     <button id="write-button" class="floating-btn">✏️</button>
 
+    <!-- 글쓰기 폼 -->
     <div id="post-form" class="hidden">
       <input type="text" id="post-title" placeholder="제목을 입력하세요" />
       <textarea id="post-content" placeholder="내용을 입력하세요..."></textarea>
@@ -33,6 +35,7 @@
     </div>
   </div>
 
+  <!-- 상세 보기 -->
   <div id="detail-popup" class="popup hidden">
     <div class="popup-content">
       <span class="close" data-target="detail-popup">&times;</span>
@@ -47,6 +50,7 @@
     </div>
   </div>
 
+  <!-- 로그인 -->
   <div id="login-popup" class="popup hidden">
     <div class="popup-content">
       <span class="close" data-target="login-popup">&times;</span>
@@ -61,18 +65,20 @@
     </div>
   </div>
 
+  <!-- 내 정보 -->
   <div id="profile-popup" class="popup hidden">
     <div class="popup-content">
       <span class="close" data-target="profile-popup">&times;</span>
       <h2>내 정보</h2>
       <p id="profile-name"></p>
-      <p id="recent-post"></p>
       <p id="profile-post-count"></p>
+      <p id="recent-post"></p>
       <button id="view-users-btn" class="hidden">가입자 목록 보기</button>
       <button id="logout-btn">로그아웃</button>
     </div>
   </div>
 
+  <!-- 가입자 목록 -->
   <div id="user-list-popup" class="popup hidden">
     <div class="popup-content">
       <span class="close" data-target="user-list-popup">&times;</span>
@@ -81,11 +87,11 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-  <!-- JS -->
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
